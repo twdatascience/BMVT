@@ -1,0 +1,21 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+traits_M_30793 <- unique(linetest1$TRAIT_NM)
+
+```
+
+```{r}
+out <- list()
+for (i in seq_along(traits_M_30793)) {
+    trait_filter <- filter(linetest1, TRAIT_NM == traits_M_30793[i])
+    line_AA <- filter(trait_filter, HAP_CALL == 'AA')
+    line_BB <- filter(trait_filter, HAP_CALL == 'BB')
+    test <- t.test(line_AA[,17], line_BB[,17])
+    out[[i]] <- as.data.frame(c(traits_M_30793[i], test[3]), col.names =  c('TRAIT_NM', 'p-value'))
+}
+p_values <- bind_rows(out)
+```

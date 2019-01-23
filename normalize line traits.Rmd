@@ -1,0 +1,82 @@
+---
+title: "normalize lines by location"
+author: "Tyler Wilson"
+date: "May 26, 2018"
+output: word_document
+---
+
+```{r}
+library(agricolae)
+library(tidyverse)
+library(ggplot2)
+setwd("C:/users/Meso/Documents/BMVT/R code")
+```
+
+```{r}
+LineTraits <- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\CSI2015_TRAITS_WITH_LOC.csv', header = TRUE)
+LT_BProtein_Saransk <- filter(LineTraits, TRAIT_ID == 156, LOC_NM == 'SARANSK')
+normalize <- function(x){
+  num <- x - min(x)
+  denom <- max(x) -  min(x)
+  return(num/denom)
+}
+LT_BPro_Saransk_norm <- as.data.frame(lapply(LT_BProtein_Saransk[8], normalize))
+ggplot(LT_BPro_Saransk_norm) + geom_histogram(aes(OBSRV_NT_NBR), binwidth = .05)
+```
+
+```{r}
+LT_BProtein_Saransk$norm_obs <- unlist(LT_BPro_Saransk_norm)
+```
+in progress:
+```{r}
+lt_filters <- list(unique(LineTraits$COOP_LOC_NM), unique(LineTraits$TRAIT_ID))
+LT_Saransk2017 <- filter(LineTraits, COOP_LOC_NM == 'SARANSK 2017')
+traits_in_saransk <- unique(LT_Saransk2017$TRAIT_ID)
+
+```
+```{r}
+out <- list()
+for (i in seq_along(traits_in_saransk)) {
+   trait <- filter(LT_Saransk2017, TRAIT_ID == traits_in_saransk[i])
+   if(is.na(trait[1,8])) next
+   trait <- na.omit(trait)
+   trait_norm <- as.data.frame(lapply(trait[8], normalize))
+   trait$norm_obs <- unlist(trait_norm)
+   out[[i]] <- trait
+}
+LT_Saransk2017_norm_no_na <- bind_rows(out)
+```
+
+```{r}
+LT_Saransk2017_norm_all <- merge(LT_Saransk2017, LT_Saransk2017_norm_no_na, by = c("dbo_LINE_LINE_ID", "dbo_LINE_LINE_NM", "dbo_LINE_1_LINE_ID", "dbo_LINE_1_LINE_NM", "TRAIT_ID", "TRAIT_NM", "TRAIT_DSC", "OBSRV_NT_NBR", "OBSRV_EFF_TSP", "CNTRY_NM", "REGN_NM", "LOC_NM", "COOP_LOC_NM"), all.x = TRUE)
+```
+
+```{r}
+locations <- unique(LineTraits$COOP_LOC_NM)
+traits_uni <- unique(LineTraits$TRAIT_ID)
+trait_norm <- function(loc_names) {
+  out_list <- list()
+  for (i in seq_along(loc_names)) {
+    loc_filter <- filter(LineTraits, COOP_LOC_NM == loc_names[i])
+    loc_traits <- unique(loc_filter$TRAIT_ID)
+    out <- list()
+    for (i in seq_along(loc_traits)) {
+      trait <- filter(loc_filter, TRAIT_ID == loc_traits[i])
+      trait <- na.omit(trait)
+      if(is.na(trait[1,8])) next
+      one_trait_norm <- as.data.frame(lapply(trait[8], normalize))
+      trait$norm_obs <- unlist(one_trait_norm)
+      out[[i]] <- trait
+    }
+    holder <- as.data.frame(bind_rows(out))
+    out_list[[i]] <- holder
+  }
+  return(bind_rows(out_list))
+}
+
+```
+
+```{r}
+norm_trait <- trait_norm(locations)
+```
+

@@ -1,0 +1,84 @@
+---
+title: "R Notebook"
+output:
+  word_document: default
+  html_notebook: default
+---
+
+```{r}
+library(tidyverse)
+library(class)
+library(DMwR)
+setwd("C:/users/Meso/Documents/Regis/MSDS 692/R code")
+```
+
+```{r}
+Markers<- read.csv('C:\\Users\\Meso\\Documents\\Regis\\MSDS 692\\CSI2015_MARKERS.csv', header = TRUE)
+merged <- read.csv('TRAITS_W_MARKERS.csv', header = TRUE, stringsAsFactors = FALSE)
+markers_used <- data.frame(MARKER_NM = unique(merged$MARKER_NM), stringsAsFactors = FALSE)
+ML <- read.csv('ML_TRAITS2.csv', header = TRUE, stringsAsFactors = FALSE, na.strings = c(NA, 'NA', ' NA', 'NaN', NaN))
+ML_Imputed <- read.csv('ML_IMPUTED.csv', header = TRUE, stringsAsFactors = FALSE, na.strings = c(NA, 'NA', ' NA', 'NaN', NaN))
+
+```
+
+
+```{r}
+lines <- data.frame(dbo_LINE_LINE_ID = unique(ML$dbo_LINE_LINE_ID), stringsAsFactors = FALSE)
+Markers$PLANT_ID <- NULL
+
+```
+
+```{r}
+line_markers <- merge(Markers, lines, by = 'dbo_LINE_LINE_ID')
+```
+
+```{r}
+good_hap <- c('AA', 'BB', 'AB', 'Dupe')
+bad_hap <- line_markers %>% filter(! HAP_CALL %in% good_hap)
+```
+
+```{r}
+good_Haps <- line_markers %>% filter(HAP_CALL %in% c('AA', 'BB'))
+
+```
+
+
+```{r}
+good_Haps$dbo_LINE_LINE_NM <- NULL
+good_Haps$dbo_LINE_1_LINE_ID <- NULL
+good_Haps$dbo_LINE_1_LINE_NM <- NULL
+
+train_markers <- merge(ML_Imputed, good_Haps, by = 'dbo_LINE_LINE_ID')
+```
+
+```{r}
+bad_hap$dbo_LINE_LINE_NM <- NULL
+bad_hap$dbo_LINE_1_LINE_ID <- NULL
+bad_hap$dbo_LINE_1_LINE_NM <- NULL
+bad_hap$MARKER_HAP <- NULL
+test_markers <- merge(ML_Imputed, bad_hap, by = 'dbo_LINE_LINE_ID')
+```
+
+```{r}
+knn10 <- list()
+for (i in 1:nrow(markers_used)) {
+  train_set <- filter(train_markers, MARKER_NM == markers_used[i,])
+  test_set <- filter(test_markers, MARKER_NM == markers_used[i,])
+  if (is.data.frame(train_set) && nrow(train_set) <= 0) next
+  if (is.data.frame(test_set) && nrow(test_set) <= 0) next
+  k10 <- knn(train_set[,2:26], test_set[,2:26], train_set[,29], k=10)
+  test_set$KNN_HAP <- k10
+  knn10[[i]] <- as.data.frame(test_set)
+}
+bad_hap_knn10 <- as.data.frame(bind_rows(knn10))
+```
+
+```{r}
+train_markers$KNN_HAP <- NA
+markers_knn <- bind_rows(train_markers, bad_hap_knn10)
+```
+
+```{r}
+ggplot(markers_knn) + geom_boxplot(aes(HAP_CALL, SOLUBLE.PROTEIN, color = KNN_HAP))
+```
+
