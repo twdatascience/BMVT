@@ -9,11 +9,11 @@ output:
 library(tidyverse)
 library(class)
 library(DMwR)
-setwd("C:/users/Meso/Documents/Regis/MSDS 692/R code")
+setwd("C:/users/Meso/Documents/BMVT")
 ```
 
 ```{r}
-Markers<- read.csv('C:\\Users\\Meso\\Documents\\Regis\\MSDS 692\\CSI2015_MARKERS.csv', header = TRUE)
+Markers<- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\CSI2015_MARKERS.csv', header = TRUE)
 merged <- read.csv('TRAITS_W_MARKERS.csv', header = TRUE, stringsAsFactors = FALSE)
 markers_used <- data.frame(MARKER_NM = unique(merged$MARKER_NM), stringsAsFactors = FALSE)
 ML <- read.csv('ML_TRAITS2.csv', header = TRUE, stringsAsFactors = FALSE, na.strings = c(NA, 'NA', ' NA', 'NaN', NaN))
