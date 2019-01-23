@@ -8,12 +8,12 @@ output:
 ```{r}
 library(tidyverse)
 library(ggplot2)
-setwd("C:/users/Meso/Documents/Regis/MSDS 692/R code")
+setwd("C:/users/Meso/Documents/BMVT")
 ```
 ```{r}
-Markers<- read.csv('C:\\Users\\Meso\\Documents\\Regis\\MSDS 692\\CSI2015_MARKERS.csv', header = TRUE)
-Line_Traits <- read.csv('C:\\Users\\Meso\\Documents\\Regis\\MSDS 692\\R code\\LINE_NORMAL.csv', header = TRUE, stringsAsFactors = FALSE)
-Plot_Traits <- read.csv('C:\\Users\\Meso\\Documents\\Regis\\MSDS 692\\R code\\PLOT_NORMAL.csv', header = TRUE, stringsAsFactors = FALSE)
+Markers<- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\CSI2015_MARKERS.csv', header = TRUE)
+Line_Traits <- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\LINE_NORMAL.csv', header = TRUE, stringsAsFactors = FALSE)
+Plot_Traits <- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\PLOT_NORMAL.csv', header = TRUE, stringsAsFactors = FALSE)
 ```
 
 ```{r}

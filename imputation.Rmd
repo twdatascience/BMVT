@@ -10,7 +10,7 @@ library(ggplot2)
 library(data.table)
 library(DMwR)
 
-setwd("C:/users/Meso/Documents/Regis/MSDS 692/R code")
+setwd("C:/users/Meso/Documents/BMVT")
 ML <- read.csv('ML_TRAITS.csv', header = TRUE, stringsAsFactors = FALSE, na.strings = c(NA, 'NA', ' NA', 'NaN', NaN))
 ML2 <- filter(ML, !is.na(ML$AA.CHART))
 ML2$GM.MOIS <- NULL

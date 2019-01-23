@@ -8,11 +8,11 @@ output: word_document
 ```{r}
 library(tidyverse)
 library(ggplot2)
-setwd("C:/users/Meso/Documents/Regis/MSDS 692/R code")
+setwd("C:/users/Meso/Documents/BMVT")
 ```
 
 ```{r}
-PlotTraits <- read.csv('C:\\Users\\Meso\\Documents\\Regis\\MSDS 692\\CSI2015_PLOT_TRAITS_LOC_NEW.csv', header = TRUE)
+PlotTraits <- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\CSI2015_PLOT_TRAITS_LOC_NEW.csv', header = TRUE)
 normalize <- function(x){
   num <- x - min(x)
   denom <- max(x) -  min(x)

@@ -9,19 +9,19 @@ output:
 library(tidyverse)
 library(ggplot2)
 library(data.table)
-setwd("C:/users/Meso/Documents/Regis/MSDS 692 Practicum I/R code")
+setwd("C:/users/Meso/Documents/BMVT")
 ```
 
 
 
 ```{r}
-LineTraits <- read.csv('C:\\Users\\Meso\\Documents\\Regis\\MSDS 692\\CSI2015_TRAITS_WITH_LOC.csv', header = TRUE, stringsAsFactors = FALSE, na.strings = c(NA, "NA", " NA"))
-LineTraits_norm <- read.csv('C:\\Users\\Meso\\Documents\\Regis\\MSDS 692\\R code\\LINE_NORMAL.csv', header = TRUE, stringsAsFactors = FALSE, na.strings = c(NA, 'NA', ' NA'))
+LineTraits <- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\CSI2015_TRAITS_WITH_LOC.csv', header = TRUE, stringsAsFactors = FALSE, na.strings = c(NA, "NA", " NA"))
+LineTraits_norm <- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\LINE_NORMAL.csv', header = TRUE, stringsAsFactors = FALSE, na.strings = c(NA, 'NA', ' NA'))
 ```
 
 ```{r}
-PlotTraits <- read.csv('C:\\Users\\Meso\\Documents\\Regis\\MSDS 692\\CSI2015_PLOT_TRAITS_LOC_NEW.csv', header = TRUE, stringsAsFactors = FALSE, na.strings = c(NA, "NA", " NA"))
-PlotTraits_norm <- read.csv('C:\\Users\\Meso\\Documents\\Regis\\MSDS 692\\R code\\PLOT_NORMAL.csv', header = TRUE, stringsAsFactors = FALSE, na.strings = c(NA, 'NA', ' NA'))
+PlotTraits <- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\CSI2015_PLOT_TRAITS_LOC_NEW.csv', header = TRUE, stringsAsFactors = FALSE, na.strings = c(NA, "NA", " NA"))
+PlotTraits_norm <- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\PLOT_NORMAL.csv', header = TRUE, stringsAsFactors = FALSE, na.strings = c(NA, 'NA', ' NA'))
 ```
 
 
