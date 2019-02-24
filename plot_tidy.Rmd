@@ -1,0 +1,94 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+# load libraries and set working directory
+library(tidyverse)
+library(caret)
+setwd("C:/users/Meso/Documents/BMVT")
+```
+
+```{r}
+# create normalize function
+normalize <- function(x){
+  num <- x - min(x)
+  denom <- max(x) -  min(x)
+  return(num/denom)
+}
+
+z_normalize <- function(x){
+  num <- x - mean(x)
+  denom <- sd(x)
+  return(num/denom)
+}
+```
+
+```{r}
+# read csv file for lab traits
+plot_traits <- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\CSI2015_PLOT_TRAITS_LOC_NEW.csv', header = TRUE, stringsAsFactors = F)
+```
+
+```{r}
+#When this table was pulled from the database many duplicate rows were created. This removes the duplicates
+plot_traits <- as.tibble(unique(plot_traits))
+```
+
+```{r}
+# clean up data frame to remove items that are not useful
+exclude_line <- tibble(Lines = c('9879', '12941'))
+plot_use <- plot_traits %>% 
+  filter(! dbo_LINE_LINE_ID %in% exclude_line$Lines)
+```
+
+```{r}
+# clean trial names
+plot_use <- as.tibble(plot_use)
+plot_use$COOP_LOC_NM[plot_use$COOP_LOC_NM == "CORONEL SUAREZ 2016"] <- "2016 CORONEL SUAREZ"
+plot_use$COOP_LOC_NM[plot_use$COOP_LOC_NM == "OMBUES YIELD 2017"] <- "2017 OMBUES YIELD"
+plot_use$COOP_LOC_NM[plot_use$COOP_LOC_NM == "TRES ARROYOS 2016"] <- "2016 TRES ARROYOS"
+```
+
+
+```{r}
+raw_plot_trial_traits <- split(plot_use, f = list(plot_use$COOP_LOC_NM, plot_use$TRAIT_NM))
+clean_plot_trial_traits <- raw_plot_trial_traits[sapply(raw_plot_trial_traits, function (x) dim(x)[1]) > 0]
+```
+
+```{r}
+trial_trait_names <- names(clean_plot_trial_traits)
+trial_lodging <-  clean_plot_trial_traits[grep("^.*LODGING", trial_trait_names)]
+trial_non_lodging <- clean_plot_trial_traits[grep("^(?!.*LODGING)", trial_trait_names, perl = T)]
+```
+
+wilcox ranked sum test for lodging
+
+```{r}
+for (i in seq_along(trial_non_lodging)) {
+  trial_non_lodging[[i]] <- mutate(trial_non_lodging[[i]], norm_obs = normalize(trial_non_lodging[[i]]$OBSRV_NT_NBR))
+}
+```
+
+
+```{r}
+normal_non_lodging <- bind_rows(trial_non_lodging)
+lodging <- bind_rows(trial_lodging)
+```
+
+```{r}
+write.csv(normal_non_lodging, 'PLOT_NORMAL_NON_LODGING.csv')
+write.csv(lodging, 'PLOT_LODGING.csv')
+```
+
+```{r}
+for (i in seq_along(trial_non_lodging)) {
+  trial_non_lodging[[i]] <- mutate(trial_non_lodging[[i]], norm_obs = z_normalize(trial_non_lodging[[i]]$OBSRV_NT_NBR))
+}
+```
+
+```{r}
+z_normal_non_lodging <- bind_rows(trial_non_lodging)
+write.csv(z_normal_non_lodging, 'PLOT_Z_NORMAL_NON_LODGING.csv')
+```
+

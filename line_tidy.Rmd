@@ -1,0 +1,99 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+```{r}
+# load libraries and set working directory
+library(tidyverse)
+setwd("C:/users/Meso/Documents/BMVT")
+```
+
+```{r}
+# read csv file for lab traits
+LineTraits <- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\CSI2015_TRAITS_WITH_LOC.csv', header = TRUE, stringsAsFactors = FALSE, na.strings = c(NA, "NA", " NA"))
+```
+
+```{r}
+# create normalize function
+normalize <- function(x){
+  num <- x - min(x)
+  denom <- max(x) -  min(x)
+  return(num/denom)
+}
+
+
+z_normalize <- function(x){
+  num <- x - mean(x)
+  denom <- sd(x)
+  return(num/denom)
+}
+```
+
+
+```{r}
+# clean up data frame to remove items that are not useful
+exclude_line <- tibble(Lines = c('9879', '12941'))
+exclude_trait_nm <- tibble(Trait_NM = c('UNIT#', 'FILTRATE ONE HOUR', 'MALT PROBLEMS', 'STEEP IN DATE', 'STEEP NUMBER', 'MALT MIDS', 'MALT PLUMPS', 'JAR #'))
+line_use <- LineTraits %>% 
+  filter(! dbo_LINE_LINE_ID %in% exclude_line$Lines, ! TRAIT_NM %in% exclude_trait_nm$Trait_NM)
+```
+
+```{r}
+# remove duplicate rows
+line_use <- unique(line_use)
+
+line_use <- na.omit(line_use)
+
+# clean trial names
+line_use <- as_tibble(line_use)
+line_use$COOP_LOC_NM[line_use$COOP_LOC_NM == "CORONEL SUAREZ 2016"] <- "2016 CORONEL SUAREZ"
+line_use$COOP_LOC_NM[line_use$COOP_LOC_NM == "SARANSK 2017"] <- "2017 SARANSK"
+line_use$COOP_LOC_NM[line_use$COOP_LOC_NM == "TRES ARROYOS 2016"] <- "2016 TRES ARROYOS"
+```
+
+```{r}
+# create a list of trial tables for every trait
+raw_trials <- split(line_use, f = line_use$COOP_LOC_NM)
+raw_trial_traits <- split(line_use, f = list(line_use$COOP_LOC_NM, line_use$TRAIT_NM))
+```
+
+```{r}
+# remove empty data frames
+clean_trial_traits <- raw_trial_traits[sapply(raw_trial_traits, function(x) dim(x)[1]) > 0]
+```
+
+```{r}
+# normalize each table and add a new normalized data column
+for (i in seq_along(clean_trial_traits)) {
+  clean_trial_traits[[i]] <- mutate(clean_trial_traits[[i]], norm_obs = normalize(clean_trial_traits[[i]]$OBSRV_NT_NBR))
+}
+```
+
+```{r}
+# aggregrate data
+normal_data <- bind_rows(clean_trial_traits)
+```
+
+```{r}
+# write to csv file
+write.csv(normal_data, 'LINE_NORMAL.csv')
+```
+
+
+```{r}
+# normalize each table and add a new normalized data column
+for (i in seq_along(clean_trial_traits)) {
+  clean_trial_traits[[i]] <- mutate(clean_trial_traits[[i]], norm_obs = z_normalize(clean_trial_traits[[i]]$OBSRV_NT_NBR))
+}
+```
+
+```{r}
+# aggregrate data
+z_normal_data <- bind_rows(clean_trial_traits)
+```
+
+```{r}
+# write to csv file
+write.csv(normal_data, 'LINE_Z_NORMAL.csv')
+```
+

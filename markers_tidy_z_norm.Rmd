@@ -1,0 +1,62 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+# Set up libraries and set working directory
+library(tidyverse)
+setwd("C:/users/Meso/Documents/BMVT")
+```
+
+```{r}
+# Read in marker information and line and plot traits already cleaned
+markers<- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\CSI2015_MARKERS.csv', header = T, stringsAsFactors = F)
+line_traits <- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\LINE_Z_NORMAL.csv', header = T, stringsAsFactors = F)
+plot_traits_non_lodging <- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\PLOT_Z_NORMAL_NON_LODGING.csv', header = T, stringsAsFactors = F)
+plot_traits_lodging <- read.csv('C:\\Users\\Meso\\Documents\\BMVT\\PLOT_LODGING.csv', header = T, stringsAsFactors = F)
+line_traits$X <- NULL
+plot_traits_non_lodging$X <- NULL
+plot_traits_lodging$X <- NULL
+```
+
+```{r}
+# Combine the two types of traits
+traits <- bind_rows(line_traits, plot_traits_non_lodging, plot_traits_lodging)
+```
+
+```{r}
+# Remove plants from markers
+marks_noplant <- markers[, !(names(markers) %in% c("PLANT_ID")) ]
+markers <- unique(marks_noplant)
+```
+
+```{r}
+# Remove unwanted info from marker data frame
+exclude_line <- data.frame(Lines = c('CONRAD', 'MERIT 57'))
+marker_use <- markers %>% filter(! dbo_LINE_LINE_NM %in% exclude_line$Lines)
+marker_use$dbo_LINE_1_LINE_ID <- NULL
+marker_use$dbo_LINE_1_LINE_NM <- NULL
+```
+
+```{r}
+# Make the initial merge
+merged1 <- merge(marker_use, traits, by = 'dbo_LINE_LINE_ID')
+```
+
+```{r}
+# Clean out unwanted triats
+exclude_trait_nm <- data.frame(Triat_NM = 'FGGRAMS OVER')
+merged <- filter(merged1, !TRAIT_NM %in% 'FGGRAMS OVER')
+```
+
+
+exclude_trait_nm <- data.frame(Trait_NM = c('UNIT#', 'FILTRATE ONE HOUR', 'MALT PROBLEMS', 'STEEP IN DATE', 'STEEP NUMBER', 'FGGRAMS OVER', 'GM.MOIS', 'HEIGHT.CM', 'FGGRAMS.OVER', 'MALT.MIDS', 'MALT.PLUMPS', 'MIDS.BARLEY', 'PULMP.BARLEY', 'RDF', 'SOM.MOIS', 'VISC.CP', 'WIEGHT', 'Z_YIELD', 'THINS.BARLEY'))
+merged <- merged_1 %>% filter(! TRAIT_NM %in% exclude_trait_nm$Trait_NM)
+
+
+```{r}
+# Write out the merged file to use later
+write.csv(merged, "TRAITS_W_MARKERS_Z_NORM.csv")
+```
+
